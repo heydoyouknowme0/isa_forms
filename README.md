@@ -34,3 +34,40 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Init Postgres
+
+
+### Create Form Table
+```sql
+CREATE TABLE "Form" (
+"id" SERIAL NOT NULL,
+"userId" TEXT NOT NULL,
+"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+"published" BOOLEAN NOT NULL DEFAULT false,
+"name" TEXT NOT NULL,
+"description" TEXT NOT NULL DEFAULT '',
+"content" TEXT NOT NULL DEFAULT '[]',
+"visits" INTEGER NOT NULL DEFAULT 0,
+"submissions" INTEGER NOT NULL DEFAULT 0,
+"sharUrl" TEXT NOT NULL,
+
+    CONSTRAINT "Form_pkey" PRIMARY KEY ("id")
+);
+```
+### Create FormSubmission Table
+```sql
+CREATE TABLE "FormSubmission" (
+"id" SERIAL NOT NULL,
+"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+"formId" INTEGER NOT NULL,
+"content" TEXT NOT NULL,
+
+    CONSTRAINT "FormSubmission_pkey" PRIMARY KEY ("id")
+);
+```
+
+### AddForeignKey
+```sql
+ALTER TABLE "FormSubmission" ADD CONSTRAINT "FormSubmission_formId_fkey" FOREIGN KEY ("formId") REFERENCES "Form"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+```
