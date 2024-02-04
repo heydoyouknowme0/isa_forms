@@ -12,26 +12,47 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
-model Form {
+model form {
   id          Int       @id @default(autoincrement())
-  userId      String
-  createdAt   DateTime  @default(now())
-  published   Boolean   @default(false)
-  name        String
-  description String    @default("")
-  content     String    @default("[]")
+  title               String
+  description         String            @default("")
+  visible_to          String[]
+  questions                 String          @default("[]")
+  on_submit_message         String            @default("Your response has been recorded.")
+  is_editing_allowed        Boolean
+  is_single_response        Boolean     @default(true)
+  is_view_analytics_allowed Boolean     @default(false)
+  is_shuffled               Boolean     @default(false)
+  is_copy_sent              Boolean     @default(false)
+  is_quiz                   Boolean     @default(false)
+  expiry_date               DateTime?
+  is_active                 Boolean     @default(true)
+  persistant_url            String?
+  is_pulished               Boolean     @default(false)
+  form_submission           form_submission[]
+  form_questions            form_questions[]
 
-  visits      Int       @default(0)
-  submissions Int       @default(0)
-
-  sharUrl         String            @default(uuid())
-  FormSubmissions FormSubmission[]
 }
 
-model FormSubmission {
+model form_submission {
   id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  formId      Int
-  form        Form      @relation(fields: [formId], references: [id])
-  content     String
+  created_at  DateTime  @default(now())
+  email       String
+  form_id     Int
+  form        form      @relation(fields: [form_id], references: [id])
+}
+
+model form_questions {
+  id                    Int       @id @default(autoincrement())
+  form_id               Int
+  question              String
+  description           String
+  is_required           Boolean   @default(true)
+  input_type            String
+  choices               String?
+  mime_type             String?
+  range                 String?
+  page_number           Int       @default(0)
+  marks                 Int       @default(0)
+  form                  form      @relation(fields: [form_id], references: [id])
 }
