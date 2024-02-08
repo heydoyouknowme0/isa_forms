@@ -1,9 +1,7 @@
 "use client";
 
-import { formSchema, formSchemaType } from "@/schemas/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ImSpinner2 } from "react-icons/im";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,9 +23,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import { CreateForm } from "@/actions/form";
+import { CreateForm } from "@/actions/forms.actions";
 import { BsFileEarmarkPlus } from "react-icons/bs";
 import { useRouter } from "next/navigation";
+import { formSchema, formSchemaType } from "@/schemas/form";
+import { ImSpinner2 } from "react-icons/im";
 
 function CreateFormBtn() {
   const router = useRouter();
@@ -42,7 +42,6 @@ function CreateFormBtn() {
         title: "Success",
         description: "Form created successfully",
       });
-      router.push(`/builder/${formId}`);
     } catch (error) {
       toast({
         title: "Error",
@@ -76,7 +75,7 @@ function CreateFormBtn() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             <FormField
               control={form.control}
-              name="name"
+              name="title"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
@@ -100,20 +99,21 @@ function CreateFormBtn() {
                 </FormItem>
               )}
             />
+            <DialogFooter>
+              <Button
+                onClick={form.handleSubmit(onSubmit)}
+                aria-disabled={form.formState.isSubmitting}
+                className="w-full mt-4"
+              >
+                {form.formState.isSubmitting ? (
+                  <ImSpinner2 className="animate-spin" />
+                ) : (
+                  <span>Save</span>
+                )}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
-        <DialogFooter>
-          <Button
-            onClick={form.handleSubmit(onSubmit)}
-            disabled={form.formState.isSubmitting}
-            className="w-full mt-4"
-          >
-            {!form.formState.isSubmitting && <span>Save</span>}
-            {form.formState.isSubmitting && (
-              <ImSpinner2 className="animate-spin" />
-            )}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

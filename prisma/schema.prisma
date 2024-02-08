@@ -1,4 +1,4 @@
-// This is your Prisma schema file,
+// This is your Prisma schemas file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -13,12 +13,13 @@ datasource db {
 }
 
 model form {
-  id          Int       @id @default(autoincrement())
-  title               String
-  description         String            @default("")
-  visible_to          String[]
-  questions                 String          @default("[]")
-  on_submit_message         String            @default("Your response has been recorded.")
+  id                        Int         @id @default(autoincrement())
+  user_id                   Int
+  title                     String
+  description               String      @default("")
+  visible_to                String[]
+  questions                 String      @default("[]")
+  on_submit_message         String      @default("Your response has been recorded.")
   is_editing_allowed        Boolean
   is_single_response        Boolean     @default(true)
   is_view_analytics_allowed Boolean     @default(false)

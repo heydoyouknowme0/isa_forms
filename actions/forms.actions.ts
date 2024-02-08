@@ -1,13 +1,20 @@
 "use server";
 import prisma from "@/lib/prisma";
-const currentUser = { id: "1" };
+import { formSchema, formSchemaType } from "@/schemas/form";
+
+//TODO
+async function currentUser() {
+  return { id: "1" };
+}
+class UserNotFoundErr extends Error {}
 
 // All forms analytics
 export async function getFormStats() {
+  const user = await currentUser();
   if (!currentUser) console.log("User not logged in");
   const stats = await prisma.form.aggregate({
     where: {
-      userId: currentUser.id,
+      userId: user.id,
     },
     _sum: {
       visits: true,
@@ -27,4 +34,26 @@ export async function getFormStats() {
     submissionRate,
     bounceRate,
   };
+}
+export async function CreateForm(values: formSchemaType) {
+  const validation = formSchema.safeParse(values);
+  if (!validation.success) {
+    throw new Error("Invalid form data");
+  }
+  const user = await currentUser();
+
+  if (!user) throw new UserNotFoundErr();
+
+  try {
+    const form = await prisma.form.create({
+      data: {
+        ...values,
+        user_id: user.id,
+      },
+    });
+
+    return form.id;
+  } catch (e) {
+    throw new Error("something went wrong");
+  }
 }
