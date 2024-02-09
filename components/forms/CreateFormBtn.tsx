@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CreateForm } from "@/actions/forms.actions";
 import { BsFileEarmarkPlus } from "react-icons/bs";
 import { useRouter } from "next/navigation";
@@ -38,6 +39,7 @@ function CreateFormBtn() {
   async function onSubmit(values: formSchemaType) {
     try {
       const formId = await CreateForm(values);
+      router.push(`/forms/builder/${formId}`);
       toast({
         title: "Success",
         description: "Form created successfully",
@@ -56,7 +58,7 @@ function CreateFormBtn() {
       <DialogTrigger asChild>
         <Button
           variant={"outline"}
-          className="group border border-primary/20 h-[190px] items-center justify-center flex flex-col hover:border-primary hover:cursor-pointer border-dashed gap-4"
+          className="group border border-primary/20 h-[170px] items-center justify-center flex flex-col hover:border-primary hover:cursor-pointer border-dashed gap-4"
         >
           <BsFileEarmarkPlus className="h-8 w-8 text-muted-foreground group-hover:text-primary" />
           <p className="font-bold text-xl text-muted-foreground group-hover:text-primary">
@@ -96,6 +98,25 @@ function CreateFormBtn() {
                     <Textarea rows={5} {...field} />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isEditable"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                      should this form be editable after creation?
+                    </FormLabel>
+                  </div>
                 </FormItem>
               )}
             />
