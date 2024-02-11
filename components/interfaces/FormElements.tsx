@@ -1,0 +1,38 @@
+import { TextFieldFormElement } from "@/components/forms/fields/TextFieldFormElement";
+import React, { ElementType } from "react";
+
+export type ElementsType = "TextField";
+
+export type FormElement = {
+  input_type: ElementsType;
+  dragBtnElement: {
+    icon: ElementType;
+    label: string;
+  };
+  uiFieldComponent: React.FC<{ elementInstance: FormElementInstance }>;
+  formComponent: React.FC;
+  propertiesComponent: React.FC;
+  construct: (id: string, page_number: number) => FormElementInstance;
+};
+
+export type FormElementInstance = {
+  id: string;
+  ques_id?: number;
+  question: string;
+  description?: string;
+  is_required: boolean;
+  input_type: ElementsType;
+  choices?: string[];
+  mime_types?: string[];
+  range?: string[];
+  page_number: number;
+  marks: number;
+};
+
+type FormElementsType = {
+  [Key in ElementsType]: FormElement;
+};
+
+export const FormElements: FormElementsType = {
+  TextField: TextFieldFormElement,
+};

@@ -1,25 +1,72 @@
-import * as React from "react"
+// Import necessary libraries
+import * as React from "react";
+import { IconBaseProps } from "react-icons";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
+import { Label } from "./label";
+
+// Define InputProps interface
 export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  alwaysFocused?: boolean;
+  label?: string;
+  inputClassName?: string;
+  ref?: React.ForwardedRef<HTMLInputElement>;
 
+  required?: boolean;
+
+  LeftChild?: React.ComponentType<IconBaseProps>; // Updated to a function that returns ReactNode
+  RightChild?: React.ComponentType<IconBaseProps>;
+  onRightChildClick?: () => void;
+}
+
+// Define Input component
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
-    return (
-      <input
-        type={type}
-        className={cn(
-          "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-          className
-        )}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
-)
-Input.displayName = "Input"
+  (
+    {
+      className,
+      type,
+      LeftChild,
+      required = false,
+      label,
+      ...props
+    }: InputProps,
+    ref
+  ) => {
+    const inputContainerClasses = cn("relative", "flex items-center");
 
-export { Input }
+    const inputClasses = cn(
+      "flex h-9 w-full rounded-md border border-input bg-transparent",
+      "text-sm transition-colors",
+      "placeholder:text-muted-foreground",
+      "file:border-0 file:bg-transparent file:text-sm file:font-medium ",
+      "focus-visible:border-black focus-visible:outline-blue-100 focus-visible:outline-offset-2",
+      "disabled:cursor-not-allowed disabled:opacity-50",
+      "invalid:border-red-500 invalid:outline-red-100 invalid:outline-offset-2",
+      className,
+      LeftChild ? "pl-7 " : "pl-3 " // Adjusted margin-top
+    );
+
+    return (
+      <div className="w-full">
+        <Label htmlFor="file">{label}</Label>
+        {required && <span style={{ color: "#EC734B" }}>*</span>}
+        <div className={inputContainerClasses}>
+          {LeftChild && (
+            <div className="absolute left-2 top-[0.70rem] h-4 w-4 text-muted-foreground ">
+              {<LeftChild />}
+            </div>
+          )}
+          <input type={type} className={inputClasses} ref={ref} {...props} />
+        </div>
+      </div>
+    );
+  }
+);
+
+// Set display name for Input component
+Input.displayName = "Input";
+
+// Export Input component
+export { Input };
