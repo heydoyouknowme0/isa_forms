@@ -4,7 +4,7 @@ import {
   FormElements,
 } from "@/components/interfaces/FormElements";
 import { cn } from "@/lib/utils";
-import { useDroppable } from "@dnd-kit/core";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import useDragDrop from "../hooks/useDragDrop";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ export default function FormPageDropable({ page }: { page: number }) {
           </p>
         )}
 
-      {droppable.isOver && (
+      {droppable.isOver && (!elements[page] || elements[page].length === 0) && (
         <div className="p-4 w-full">
           <div className="h-[120px] rounded-md bg-primary/20"></div>
         </div>
@@ -53,12 +53,13 @@ export default function FormPageDropable({ page }: { page: number }) {
 }
 
 function DroppedElement({ element }: { element: FormElementInstance }) {
-  const { removeElement } = useDragDrop();
+  const { removeElement, selectedElement, setSelectedElement } = useDragDrop();
   const [mouseIsOver, setMouseIsOver] = useState<boolean>(false);
   const topHalf = useDroppable({
     id: element.id + "-top",
     data: {
       type: element.input_type,
+      elementId: element.id,
       page: element.page_number,
       isTopHalfDragDrop: true,
     },
@@ -67,28 +68,56 @@ function DroppedElement({ element }: { element: FormElementInstance }) {
     id: element.id + "-bottom",
     data: {
       type: element.input_type,
+      elementId: element.id,
       page: element.page_number,
       isBottomHalfDragDrop: true,
     },
   });
+  const draggable = useDraggable({
+    id: element.id + "-drag-handler",
+    data: {
+      type: element.input_type,
+      page: element.page_number,
+      elementId: element.id,
+      isDragDropElement: true,
+    },
+  });
+
   const Element = FormElements[element.input_type].uiFieldComponent;
+
   return (
     <div
-      className="relative h-[120px] flex flex-col text-foreground hover:cursor-pointer rounded-md ring-1 ring-accent ring-inset"
+      ref={draggable.setNodeRef}
+      {...draggable.attributes}
+      {...draggable.listeners}
+      className={cn(
+        "relative h-[120px] flex flex-col text-foreground hover:cursor-pointer rounded-md ring-1 ring-accent ring-inset",
+        draggable.isDragging && "hidden"
+      )}
       onMouseEnter={() => {
         setMouseIsOver(true);
       }}
       onMouseLeave={() => {
         setMouseIsOver(false);
       }}
+      onClick={(e) => {
+        e.stopPropagation(); // to stop from deselecting the element when clicked
+        setSelectedElement(element);
+      }}
     >
       <div
         ref={topHalf.setNodeRef}
-        className="absolute w-full h-1/2 rounded-t-md"
+        className={cn(
+          "absolute w-full h-1/2 rounded-t-md",
+          topHalf.isOver && "border-t-4 border-t-foreground"
+        )}
       />
       <div
         ref={bottomHalf.setNodeRef}
-        className="absolute  w-full bottom-0 h-1/2 rounded-b-md"
+        className={cn(
+          "absolute  w-full bottom-0 h-1/2 rounded-b-md",
+          bottomHalf.isOver && "border-b-4 border-b-foreground"
+        )}
       />
       {mouseIsOver && (
         <>
@@ -97,7 +126,7 @@ function DroppedElement({ element }: { element: FormElementInstance }) {
               className="flex justify-center h-full border rounded-md rounded-l-none bg-red-500"
               variant={"outline"}
               onClick={(e) => {
-                e.stopPropagation(); // avoid selection of element while deleting
+                e.stopPropagation(); // prevent selection on delete
                 removeElement(element.id, element.page_number);
               }}
             >
@@ -111,7 +140,12 @@ function DroppedElement({ element }: { element: FormElementInstance }) {
           </div>
         </>
       )}
-      <div className="flex w-full h-[120px] items-center rounded-md bg-accent/40 py-4 px-2 pointer-events-none">
+      <div
+        className={cn(
+          "flex flex-col w-full h-[120px] justify-center items-center rounded-md bg-accent/40 px-4 py-2 pointer-events-none opacity-100",
+          mouseIsOver && "opacity-30"
+        )}
+      >
         <Element elementInstance={element} />
       </div>
     </div>

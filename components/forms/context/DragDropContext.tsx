@@ -24,6 +24,12 @@ type DragDropContextType = {
 
   selectedElement: FormElementInstance | null;
   setSelectedElement: Dispatch<SetStateAction<FormElementInstance | null>>;
+
+  updateElement: (
+    id: string,
+    page: number,
+    element: FormElementInstance
+  ) => void;
 };
 
 export const DragDropContext = createContext<DragDropContextType | null>(null);
@@ -38,19 +44,20 @@ export default function DragDropContextProvider({
   const [selectedElement, setSelectedElement] =
     useState<FormElementInstance | null>(null);
 
-  const addElement = useCallback(
-    (index: number, page: number, element: FormElementInstance) => {
-      setElements((prev) => {
-        const newElements = [...prev];
-        newElements[page] = [...prev[page]];
-        newElements[page].splice(index, 0, element);
-        return newElements;
-      });
-    },
-    []
-  );
-
+  const addElement = (
+    index: number,
+    page: number,
+    element: FormElementInstance
+  ) => {
+    setElements((prev) => {
+      const newElements = [...prev];
+      newElements[page] = [...prev[page]];
+      newElements[page].splice(index, 0, element);
+      return newElements;
+    });
+  };
   const removeElement = (id: string, page: number) => {
+    console.log("removing", id, "from", page);
     setElements((prev) => {
       const newElements = [...prev];
       newElements[page] = prev[page].filter((element) => element.id !== id);
@@ -73,6 +80,19 @@ export default function DragDropContextProvider({
     });
   };
 
+  const updateElement = (
+    id: string,
+    page: number,
+    element: FormElementInstance
+  ) => {
+    setElements((prev) => {
+      const newElements = [...prev];
+      const index = newElements[page].findIndex((el) => el.id === id);
+      newElements[page][index] = element;
+      return newElements;
+    });
+  };
+
   return (
     <DragDropContext.Provider
       value={{
@@ -84,6 +104,7 @@ export default function DragDropContextProvider({
         removePage,
         selectedElement,
         setSelectedElement,
+        updateElement,
       }}
     >
       {children}

@@ -11,7 +11,7 @@ export type FormElement = {
   };
   uiFieldComponent: React.FC<{ elementInstance: FormElementInstance }>;
   formComponent: React.FC;
-  propertiesComponent: React.FC;
+  propertiesComponent: React.FC<{ elementInstance: FormElementInstance }>;
   construct: (id: string, page_number: number) => FormElementInstance;
 };
 

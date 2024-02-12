@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import useDragDrop from "../hooks/useDragDrop";
-import FormElementPicker from "./formElementPicker";
+import FormSidebar from "./formSidebar";
 import FormPageDropable from "./FormPageDropable";
 import {
   ElementsType,
@@ -10,26 +10,86 @@ import { useDndMonitor } from "@dnd-kit/core";
 import { idGenerator } from "@/lib/idGenerator";
 
 export default function FormEditArea() {
-  const { pages, addPage, removePage, addElement } = useDragDrop();
+  const {
+    pages,
+    addPage,
+    removePage,
+    addElement,
+    removeElement,
+    elements,
+    selectedElement,
+    setSelectedElement,
+  } = useDragDrop();
   useDndMonitor({
     onDragEnd: (event) => {
       const { active, over } = event;
       if (!active || !over) return;
       const page = over.data?.current?.page;
+      if (page === undefined) return;
       const isSidebarBtnElement = active.data?.current?.isDragBtn;
       if (isSidebarBtnElement && page !== undefined) {
         const type = active.data?.current?.type;
-        const newElement =
-          FormElements[type as ElementsType].construct(idGenerator());
-        newElement.page_number = page;
-        console.log(page);
-        addElement(0, page, newElement);
+        const newElement = FormElements[type as ElementsType].construct(
+          idGenerator(),
+          page
+        );
+        const isDroppingOverFormDropArea = over.data?.current?.isFormDropArea;
+        // If the siderbar element is being dropped over the form drop area
+        if (isDroppingOverFormDropArea)
+          return addElement(elements[page].length, page, newElement);
+
+        const overId = over.data?.current?.elementId;
+        const overIndex = elements[page].findIndex(
+          (element) => element.id === overId
+        );
+        if (overIndex === -1) throw new Error("Element not found");
+        if (over.data?.current?.isBottomHalfDragDrop)
+          return addElement(overIndex + 1, page, newElement);
+        else return addElement(overIndex, page, newElement);
+      }
+
+      const isDragDropElement = active.data?.current?.isDragDropElement;
+
+      if (isDragDropElement && page !== undefined) {
+        const activePage = active.data?.current?.page;
+        const activeId = active.data?.current?.elementId;
+        if (activePage === undefined || activeId === undefined) return;
+
+        const activeElementIndex = elements[activePage].findIndex(
+          (element) => element.id === activeId
+        );
+        const activeElement = elements[activePage][activeElementIndex];
+
+        const isDroppingOverFormDropArea = over.data?.current?.isFormDropArea;
+        activeElement.page_number = page;
+        if (isDroppingOverFormDropArea) {
+          removeElement(activeId, activePage);
+          return addElement(elements[page].length, page, activeElement);
+        }
+
+        const overId = over.data?.current?.elementId;
+        const overIndex = elements[page].findIndex(
+          (element) => element.id === overId
+        );
+        if (overIndex === -1) throw new Error("Element not found");
+        if (over.data?.current?.isBottomHalfDragDrop) {
+          removeElement(activeId, activePage);
+          return addElement(overIndex + 1, page, activeElement);
+        } else {
+          removeElement(activeId, activePage);
+          return addElement(overIndex, page, activeElement);
+        }
       }
     },
   });
   return (
     <div className="flex h-full w-full">
-      <div className="px-4 pb-4 w-full overflow-auto">
+      <div
+        className="px-4 pb-4 w-full overflow-auto"
+        onClick={() => {
+          if (selectedElement) setTimeout(() => setSelectedElement(null), 50);
+        }}
+      >
         {Array.from({ length: pages }, (_, index) => (
           <FormPageDropable key={index} page={index} />
         ))}
@@ -51,7 +111,7 @@ export default function FormEditArea() {
           </Button>
         </div>
       </div>
-      <FormElementPicker />
+      <FormSidebar />
     </div>
   );
 }
