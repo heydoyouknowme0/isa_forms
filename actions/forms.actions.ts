@@ -1,7 +1,7 @@
 "use server";
 import prisma from "@/lib/prisma";
 import { formSchema, formSchemaType } from "@/schemas/form";
-import { number } from "zod";
+import { form_questions, forms } from "@prisma/client";
 
 //TODO
 async function currentUser() {
@@ -92,6 +92,67 @@ export async function getFormById(id: number) {
           id: user.id,
         },
       },
+    },
+  });
+}
+type new_form_questions = Omit<form_questions, "form_id" | "id">;
+
+export async function UpdateFormQuestions(
+  id: number,
+  questions: new_form_questions[]
+) {
+  const user = await currentUser();
+  if (!user) throw new UserNotFoundErr();
+  const questionsWithFormId = questions.map((question) => ({
+    ...question,
+    form_id: id,
+  }));
+  // TODO: Upsert many isnt a function, may need to use deleteMany and createMany in combination or some combination between update many and create many
+  return prisma.form_questions.createMany({ data: questionsWithFormId });
+}
+
+type formSum = Omit<
+  forms,
+  | "id"
+  | "is_published"
+  | "questions"
+  | "is_active"
+  | "persistent_url"
+  | "old_persistent_urls"
+>;
+export async function PublishForm(
+  form: formSum,
+  id: number,
+  questions: new_form_questions[]
+) {
+  const newForm = {
+    ...form,
+    is_published: true,
+    id,
+  };
+  await UpdateFormQuestions(id, questions);
+  return prisma.forms.update({
+    where: {
+      id,
+    },
+    data: newForm,
+  });
+}
+
+export async function getFormByIdWithQuestions(id: number) {
+  const user = await currentUser();
+  if (!user) throw new UserNotFoundErr();
+  return prisma.forms.findUnique({
+    where: {
+      id,
+      modifiable_by: {
+        some: {
+          id: user.id,
+        },
+      },
+    },
+    include: {
+      form_questions: true,
     },
   });
 }

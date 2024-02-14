@@ -14,8 +14,16 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import DragOverlayWrapper from "./DragOverlayWrapper";
+import { Switch } from "@/components/ui/switch";
+import useDragDrop from "../hooks/useDragDrop";
+import { Label } from "@/components/ui/label";
+import { useEffect } from "react";
 
 function FormBuilder({ form }: { form: forms }) {
+  const { setIsQuiz, is_quiz } = useDragDrop();
+  useEffect(() => {
+    setIsQuiz(form.is_quiz);
+  }, []);
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10, // 10px
@@ -38,11 +46,21 @@ function FormBuilder({ form }: { form: forms }) {
             {form.title}
           </h2>
           <div className="flex items-center gap-2">
+            <div>
+              <Switch
+                id={"switch"}
+                checked={is_quiz}
+                onCheckedChange={(checked) => {
+                  setIsQuiz(checked);
+                }}
+              />
+              <Label htmlFor="switch">Quiz</Label>
+            </div>
             <PreviewDialogBtn />
             {!form.is_published && (
               <>
                 <SaveFormBtn id={form.id} />
-                <PublishFormBtn id={form.id} />
+                <PublishFormBtn form={form} />
               </>
             )}
           </div>

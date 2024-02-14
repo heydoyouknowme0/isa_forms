@@ -34,6 +34,11 @@ function CreateFormBtn() {
   const router = useRouter();
   const form = useForm<formSchemaType>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      isEditable: false,
+    },
   });
 
   async function onSubmit(values: formSchemaType) {

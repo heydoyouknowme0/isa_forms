@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 const input_type: ElementsType = "TextField";
 
@@ -67,6 +68,7 @@ const propertiesSchema = z.object({
   description: z.string().max(200).optional(),
   required: z.boolean().default(false),
   placeHolder: z.string().max(50),
+  marks: z.number().nonnegative().default(0),
 });
 type propertiesFormSchemaType = z.infer<typeof propertiesSchema>;
 
@@ -75,7 +77,7 @@ function PropertiesComponent({
 }: {
   elementInstance: FormElementInstance;
 }) {
-  const { updateElement } = useDragDrop();
+  const { updateElement, is_quiz } = useDragDrop();
   const form = useForm<propertiesFormSchemaType>({
     resolver: zodResolver(propertiesSchema),
     mode: "onBlur",
@@ -84,6 +86,7 @@ function PropertiesComponent({
       description: elementInstance.description || "",
       required: elementInstance.is_required,
       placeHolder: "",
+      marks: elementInstance.marks,
     },
   });
   useEffect(() => {
@@ -92,6 +95,7 @@ function PropertiesComponent({
       description: elementInstance.description,
       required: elementInstance.is_required,
       placeHolder: "",
+      marks: elementInstance.marks,
     });
   }, [elementInstance, form]);
 
@@ -199,6 +203,33 @@ function PropertiesComponent({
             </FormItem>
           )}
         />
+
+        {is_quiz ? (
+          <FormField
+            control={form.control}
+            name="marks"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>Marks</FormLabel>
+                </div>
+                <FormControl>
+                  <Input
+                    {...field}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") e.currentTarget.blur();
+                    }}
+                    type="number"
+                    min={0}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : (
+          ""
+        )}
       </form>
     </Form>
   );

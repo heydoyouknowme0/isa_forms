@@ -12,6 +12,8 @@ import {
 
 type DragDropContextType = {
   elements: FormElementInstance[][];
+  is_quiz: boolean;
+  setIsQuiz: Dispatch<SetStateAction<boolean>>;
   addElement: (
     index: number,
     page: number,
@@ -39,6 +41,7 @@ export default function DragDropContextProvider({
 }: {
   children: ReactNode;
 }) {
+  const [is_quiz, setIsQuiz] = useState<boolean>(false);
   const [elements, setElements] = useState<FormElementInstance[][]>([[]]);
   const [pages, setPages] = useState<number>(1);
   const [selectedElement, setSelectedElement] =
@@ -97,6 +100,8 @@ export default function DragDropContextProvider({
     <DragDropContext.Provider
       value={{
         elements,
+        is_quiz,
+        setIsQuiz,
         addElement,
         removeElement,
         pages,

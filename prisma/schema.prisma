@@ -166,7 +166,7 @@ model form_questions {
   id          Int      @id(map: "pk_form_questions") @default(autoincrement())
   form_id     Int
   question    String   @db.VarChar
-  description String   @db.VarChar
+  description String?  @db.VarChar
   is_required Boolean  @default(true)
   input_type  String   @db.VarChar
   choices     String[] @db.VarChar
@@ -187,7 +187,7 @@ model form_submissions {
 model forms {
   id                        Int                @id(map: "pk_forms") @default(autoincrement())
   title                     String             @db.VarChar
-  description               String             @db.VarChar
+  description               String?            @db.VarChar
   modifiable_by             persons[]          @relation("forms_modifiable_by")
   visible_to                persons[]          @relation("forms_visible_to")
   questions                 Int[]
