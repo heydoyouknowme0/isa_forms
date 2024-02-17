@@ -1,9 +1,9 @@
-import { getFormByIdWithQuestions } from "@/actions/forms.actions";
+import { getFormForSubmission } from "@/actions/forms.actions";
 
 async function page({ params }: { params: { id: string } }) {
   const { id } = params;
-  const data = await getFormByIdWithQuestions(Number(params.id));
-  console.log(data);
-  return <div>page</div>;
+  const data = await getFormForSubmission(Number(params.id));
+
+  return data;
 }
 export default page;

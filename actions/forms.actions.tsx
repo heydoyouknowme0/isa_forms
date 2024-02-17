@@ -1,11 +1,14 @@
 "use server";
+import FormExpired from "@/components/forms/FormExpired";
+import FormNotFound from "@/components/forms/FormNotFound";
+import FormSingleResponse from "@/components/forms/FormSingleResponse";
 import prisma from "@/lib/prisma";
 import { formSchema, formSchemaType } from "@/schemas/form";
 import { form_questions, forms } from "@prisma/client";
 
 //TODO
 async function currentUser() {
-  return { id: 1 };
+  return { id: 1, institute_email: "akr@gmail.com" };
 }
 class UserNotFoundErr extends Error {}
 
@@ -175,4 +178,44 @@ export async function getFormByIdWithQuestions(id: number) {
       form_questions: true,
     },
   });
+}
+export async function getFormForSubmission(id: number) {
+  const user = await currentUser();
+  if (!user) throw new UserNotFoundErr();
+  const form = await prisma.forms.findUnique({
+    where: {
+      id,
+      visible_to: {
+        some: {
+          id: user.id,
+        },
+      },
+    },
+    include: {
+      form_questions: true,
+    },
+  });
+  console.log(form);
+  if (!form || !form.is_published) return <FormNotFound />;
+  if (!form.is_active) return <FormExpired />;
+  if (form.expiry_date && form.expiry_date < new Date()) {
+    await prisma.forms.update({
+      where: {
+        id,
+      },
+      data: {
+        is_active: false,
+      },
+    });
+    return <FormExpired />;
+  }
+  if (!form.is_single_response) {
+    const response = await prisma.form_submissions.findFirst({
+      where: {
+        form_id: id,
+        email: user.institute_email,
+      },
+    });
+    if (response) return <FormSingleResponse />;
+  }
 }
