@@ -30,6 +30,8 @@ function FormBuilder({
 }) {
   const { setIsQuiz, is_quiz, setElements, setPages } = useDragDrop();
   useEffect(() => {
+    setIsQuiz(form.is_quiz);
+    if (questions.length === 0) return;
     let groupedQuestions: FormElementInstance[][] = [];
 
     for (let i = 0; i < questions.length; i++) {
@@ -41,13 +43,11 @@ function FormBuilder({
       }
 
       const questionWithId = { ...question, Id: idGenerator() };
-
+      //TODO: fix types
       groupedQuestions[page].push(questionWithId);
     }
     setPages(groupedQuestions.length);
     setElements(groupedQuestions);
-
-    setIsQuiz(form.is_quiz);
   }, []);
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
