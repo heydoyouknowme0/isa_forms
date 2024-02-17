@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 
 const input_type: ElementsType = "TextField";
 
@@ -48,8 +47,9 @@ export const TextFieldFormElement: FormElement = {
   ),
   formComponent: () => <NameField />,
   propertiesComponent: PropertiesComponent,
-  construct: (id: string, page_number: number) => {
+  construct: (Id: string, page_number: number, id?: number) => {
     return {
+      Id,
       id,
       question: "Text Field",
       input_type,
@@ -101,7 +101,7 @@ function PropertiesComponent({
 
   function applyChanges(values: propertiesFormSchemaType) {
     const { label, description, required } = values;
-    updateElement(elementInstance.id, elementInstance.page_number, {
+    updateElement(elementInstance.Id, elementInstance.page_number, {
       ...elementInstance,
       question: label,
       description,

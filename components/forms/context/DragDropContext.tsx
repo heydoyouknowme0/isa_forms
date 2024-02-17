@@ -11,6 +11,7 @@ import {
 } from "react";
 
 type DragDropContextType = {
+  setElements: Dispatch<SetStateAction<FormElementInstance[][]>>;
   elements: FormElementInstance[][];
   is_quiz: boolean;
   setIsQuiz: Dispatch<SetStateAction<boolean>>;
@@ -19,8 +20,9 @@ type DragDropContextType = {
     page: number,
     element: FormElementInstance
   ) => void;
-  removeElement: (id: string, page: number) => void;
+  removeElement: (Id: string, page: number) => void;
   pages: number;
+  setPages: Dispatch<SetStateAction<number>>;
   addPage: () => void;
   removePage: () => void;
 
@@ -28,7 +30,7 @@ type DragDropContextType = {
   setSelectedElement: Dispatch<SetStateAction<FormElementInstance | null>>;
 
   updateElement: (
-    id: string,
+    Id: string,
     page: number,
     element: FormElementInstance
   ) => void;
@@ -59,11 +61,11 @@ export default function DragDropContextProvider({
       return newElements;
     });
   };
-  const removeElement = (id: string, page: number) => {
-    console.log("removing", id, "from", page);
+  const removeElement = (Id: string, page: number) => {
+    console.log("removing", Id, "from", page);
     setElements((prev) => {
       const newElements = [...prev];
-      newElements[page] = prev[page].filter((element) => element.id !== id);
+      newElements[page] = prev[page].filter((element) => element.Id !== Id);
       return newElements;
     });
   };
@@ -84,13 +86,13 @@ export default function DragDropContextProvider({
   };
 
   const updateElement = (
-    id: string,
+    Id: string,
     page: number,
     element: FormElementInstance
   ) => {
     setElements((prev) => {
       const newElements = [...prev];
-      const index = newElements[page].findIndex((el) => el.id === id);
+      const index = newElements[page].findIndex((el) => el.Id === Id);
       newElements[page][index] = element;
       return newElements;
     });
@@ -99,12 +101,14 @@ export default function DragDropContextProvider({
   return (
     <DragDropContext.Provider
       value={{
+        setElements,
         elements,
         is_quiz,
         setIsQuiz,
         addElement,
         removeElement,
         pages,
+        setPages,
         addPage,
         removePage,
         selectedElement,

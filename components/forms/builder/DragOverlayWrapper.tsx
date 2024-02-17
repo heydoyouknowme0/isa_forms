@@ -31,7 +31,7 @@ export default function DragOverlayWrapper() {
   if (isDragDropElement) {
     const elementId = draggedItem.data?.current?.elementId;
     const page = draggedItem.data?.current?.page;
-    const element = elements[page].find((el) => el.id === elementId);
+    const element = elements[page].find((el) => el.Id === elementId);
     if (!element) node = <div>Element not found!</div>;
     else {
       const DragDrapElementComponent =

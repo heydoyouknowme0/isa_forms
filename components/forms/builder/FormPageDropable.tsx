@@ -44,7 +44,7 @@ export default function FormPageDropable({ page }: { page: number }) {
       {elements[page] && elements[page].length > 0 && (
         <div className="flex flex-col  w-full gap-2 p-4">
           {elements[page].map((element) => (
-            <DroppedElement element={element} key={element.id} />
+            <DroppedElement element={element} key={element.Id} />
           ))}
         </div>
       )}
@@ -56,29 +56,29 @@ function DroppedElement({ element }: { element: FormElementInstance }) {
   const { removeElement, selectedElement, setSelectedElement } = useDragDrop();
   const [mouseIsOver, setMouseIsOver] = useState<boolean>(false);
   const topHalf = useDroppable({
-    id: element.id + "-top",
+    id: element.Id + "-top",
     data: {
       type: element.input_type,
-      elementId: element.id,
+      elementId: element.Id,
       page: element.page_number,
       isTopHalfDragDrop: true,
     },
   });
   const bottomHalf = useDroppable({
-    id: element.id + "-bottom",
+    id: element.Id + "-bottom",
     data: {
       type: element.input_type,
-      elementId: element.id,
+      elementId: element.Id,
       page: element.page_number,
       isBottomHalfDragDrop: true,
     },
   });
   const draggable = useDraggable({
-    id: element.id + "-drag-handler",
+    id: element.Id + "-drag-handler",
     data: {
       type: element.input_type,
       page: element.page_number,
-      elementId: element.id,
+      elementId: element.Id,
       isDragDropElement: true,
     },
   });
@@ -127,7 +127,7 @@ function DroppedElement({ element }: { element: FormElementInstance }) {
               variant={"outline"}
               onClick={(e) => {
                 e.stopPropagation(); // prevent selection on delete
-                removeElement(element.id, element.page_number);
+                removeElement(element.Id, element.page_number);
               }}
             >
               <BiSolidTrash className="h-6 w-6" />

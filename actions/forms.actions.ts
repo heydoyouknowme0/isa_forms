@@ -95,7 +95,9 @@ export async function getFormById(id: number) {
     },
   });
 }
-type new_form_questions = Omit<form_questions, "form_id" | "id">;
+type new_form_questions = Omit<form_questions, "form_id" | "id"> & {
+  Id: string;
+};
 
 export async function UpdateFormQuestions(
   id: number,
@@ -103,10 +105,13 @@ export async function UpdateFormQuestions(
 ) {
   const user = await currentUser();
   if (!user) throw new UserNotFoundErr();
-  const questionsWithFormId = questions.map((question) => ({
-    ...question,
-    form_id: id,
-  }));
+  const questionsWithFormId = questions.map((question) => {
+    const { Id, ...rest } = question;
+    return {
+      ...rest,
+      form_id: id,
+    };
+  });
   // TODO: Upsert many isnt a function, may need to use deleteMany and createMany in combination or some combination between update many and create many
   return prisma.form_questions.createMany({ data: questionsWithFormId });
 }

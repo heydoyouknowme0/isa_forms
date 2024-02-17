@@ -67,7 +67,7 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
       }
 
       const newElements = elements.flat();
-      const elementsNoId = newElements.map(({ id, ...rest }) => rest);
+      const elementsNoId = newElements.map(({ Id, ...rest }) => rest);
 
       await PublishForm(
         { ...validatedFields.data, is_quiz },

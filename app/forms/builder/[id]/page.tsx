@@ -1,10 +1,12 @@
-import { getFormById } from "@/actions/forms.actions";
+import { getFormById, getFormByIdWithQuestions } from "@/actions/forms.actions";
 import FormBuilder from "@/components/forms/builder/FormBuilder";
 
 async function BuilderPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const form = await getFormById(Number(params.id));
-  if (!form) return <div>Form not found</div>;
-  return <FormBuilder form={form} />;
+  const formWithQuestions = await getFormByIdWithQuestions(Number(params.id));
+  if (!formWithQuestions) return <div>Form not found</div>;
+  const { form_questions, ...form } = formWithQuestions;
+  console.log(form_questions);
+  return <FormBuilder form={form} questions={form_questions} />;
 }
 export default BuilderPage;

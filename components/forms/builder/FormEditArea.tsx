@@ -40,7 +40,7 @@ export default function FormEditArea() {
 
         const overId = over.data?.current?.elementId;
         const overIndex = elements[page].findIndex(
-          (element) => element.id === overId
+          (element) => element.Id === overId
         );
         if (overIndex === -1) throw new Error("Element not found");
         if (over.data?.current?.isBottomHalfDragDrop)
@@ -56,7 +56,7 @@ export default function FormEditArea() {
         if (activePage === undefined || activeId === undefined) return;
 
         const activeElementIndex = elements[activePage].findIndex(
-          (element) => element.id === activeId
+          (element) => element.Id === activeId
         );
         const activeElement = elements[activePage][activeElementIndex];
 
@@ -69,7 +69,7 @@ export default function FormEditArea() {
 
         const overId = over.data?.current?.elementId;
         const overIndex = elements[page].findIndex(
-          (element) => element.id === overId
+          (element) => element.Id === overId
         );
         if (overIndex === -1) throw new Error("Element not found");
         if (over.data?.current?.isBottomHalfDragDrop) {

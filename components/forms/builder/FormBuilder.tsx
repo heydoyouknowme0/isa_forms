@@ -1,6 +1,6 @@
 "use client";
 
-import { forms } from "@prisma/client";
+import { form_questions, forms } from "@prisma/client";
 import PreviewDialogBtn from "./buttons/PreviewDialogBtn";
 import SaveFormBtn from "./buttons/SaveFormBtn";
 import PublishFormBtn from "./buttons/PublishFormBtn";
@@ -18,10 +18,35 @@ import { Switch } from "@/components/ui/switch";
 import useDragDrop from "../hooks/useDragDrop";
 import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
+import { idGenerator } from "@/lib/idGenerator";
+import { FormElementInstance } from "@/components/interfaces/FormElements";
 
-function FormBuilder({ form }: { form: forms }) {
-  const { setIsQuiz, is_quiz } = useDragDrop();
+function FormBuilder({
+  form,
+  questions,
+}: {
+  form: forms;
+  questions: form_questions[];
+}) {
+  const { setIsQuiz, is_quiz, setElements, setPages } = useDragDrop();
   useEffect(() => {
+    let groupedQuestions: FormElementInstance[][] = [];
+
+    for (let i = 0; i < questions.length; i++) {
+      let question = questions[i];
+      let page = question.page_number;
+
+      if (!groupedQuestions[page]) {
+        groupedQuestions[page] = [];
+      }
+
+      const questionWithId = { ...question, Id: idGenerator() };
+
+      groupedQuestions[page].push(questionWithId);
+    }
+    setPages(groupedQuestions.length);
+    setElements(groupedQuestions);
+
     setIsQuiz(form.is_quiz);
   }, []);
   const mouseSensor = useSensor(MouseSensor, {

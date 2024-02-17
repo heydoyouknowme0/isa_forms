@@ -12,12 +12,16 @@ export type FormElement = {
   uiFieldComponent: React.FC<{ elementInstance: FormElementInstance }>;
   formComponent: React.FC;
   propertiesComponent: React.FC<{ elementInstance: FormElementInstance }>;
-  construct: (id: string, page_number: number) => FormElementInstance;
+  construct: (
+    Id: string,
+    page_number: number,
+    id?: number
+  ) => FormElementInstance;
 };
 
 export type FormElementInstance = {
-  id: string;
-  ques_id?: number;
+  Id: string;
+  id?: number;
   question: string;
   description?: string;
   is_required: boolean;
