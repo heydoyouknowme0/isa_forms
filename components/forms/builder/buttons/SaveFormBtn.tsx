@@ -15,6 +15,7 @@ function SaveFormBtn({ id }: { id: number }) {
     try {
       const newElements = elements.flat();
       const elementsNoId = newElements.map(({ id, ...rest }) => rest);
+      //Todo: Type fix
       await UpdateFormQuestions(id, elementsNoId);
       toast({
         title: "Success",

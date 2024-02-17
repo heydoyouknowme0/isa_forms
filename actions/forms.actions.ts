@@ -95,25 +95,40 @@ export async function getFormById(id: number) {
     },
   });
 }
-type new_form_questions = Omit<form_questions, "form_id" | "id"> & {
+type new_form_questions = Omit<form_questions, "form_id"> & {
   Id: string;
 };
 
 export async function UpdateFormQuestions(
-  id: number,
+  form_id: number,
   questions: new_form_questions[]
 ) {
   const user = await currentUser();
   if (!user) throw new UserNotFoundErr();
-  const questionsWithFormId = questions.map((question) => {
-    const { Id, ...rest } = question;
-    return {
-      ...rest,
-      form_id: id,
-    };
+  const upsertOperations = questions.map(async (question) => {
+    const { id, Id, ...rest } = question;
+    if (!id)
+      return prisma.form_questions.create({
+        data: {
+          ...rest,
+          form_id,
+        },
+      });
+    else {
+      return prisma.form_questions.upsert({
+        where: {
+          id,
+        },
+        update: rest,
+        create: {
+          ...rest,
+          form_id: id,
+        },
+      });
+    }
   });
-  // TODO: Upsert many isnt a function, may need to use deleteMany and createMany in combination or some combination between update many and create many
-  return prisma.form_questions.createMany({ data: questionsWithFormId });
+
+  await Promise.all(upsertOperations);
 }
 
 type formSum = Omit<
