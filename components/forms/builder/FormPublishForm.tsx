@@ -49,7 +49,7 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
     resolver: zodResolver(finalFormSchema),
     defaultValues: {
       title: sForm.title,
-      description: sForm.description,
+      description: sForm.description || undefined,
       on_submit_message: sForm.on_submit_message,
       is_editing_allowed: sForm.is_editing_allowed,
       is_single_response: sForm.is_single_response,
@@ -145,7 +145,7 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
             render={({ field }) => (
               <FormItem className="w-[50%]">
                 <FormLabel>Expiry Date</FormLabel>
-                <Popover>
+                <Popover modal={true}>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
@@ -186,7 +186,7 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
               control={form.control}
               name="is_editing_allowed"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between py-3 pr-3">
+                <FormItem className="flex flex-row items-center justify-between py-3 pr-3 relative">
                   <FormLabel className="mr-2 mt-2">Can be Edited</FormLabel>
                   <FormControl>
                     <Switch
@@ -194,6 +194,7 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                  <FormMessage className="bottom-[-10%] absolute" />
                 </FormItem>
               )}
             />
@@ -201,7 +202,7 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
               control={form.control}
               name="is_single_response"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between py-3 pr-3">
+                <FormItem className="flex flex-row items-center justify-between py-3 pr-3 relative">
                   <FormLabel className="mr-2 mt-2">
                     Only single Response allowed
                   </FormLabel>
@@ -211,6 +212,7 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                  <FormMessage className="bottom-[-10%] absolute" />
                 </FormItem>
               )}
             />
@@ -220,7 +222,7 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
               control={form.control}
               name="is_shuffled"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between p-3">
+                <FormItem className="flex flex-row items-center justify-between p-3 relative">
                   <FormLabel className="mr-2 mt-2">Shuffled</FormLabel>
                   <FormControl>
                     <Switch
@@ -228,6 +230,7 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                  <FormMessage className="bottom-[-10%] absolute" />
                 </FormItem>
               )}
             />
@@ -235,7 +238,7 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
               control={form.control}
               name="is_view_analytics_allowed"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between p-3 ">
+                <FormItem className="flex flex-row items-center justify-between p-3 relative">
                   <FormLabel className="mr-2 mt-2">
                     Able to View Analytics
                   </FormLabel>
@@ -245,6 +248,7 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                  <FormMessage className="bottom-[-10%] absolute" />
                 </FormItem>
               )}
             />
