@@ -172,7 +172,7 @@ model form_questions {
   choices      String[]       @db.VarChar
   mime_types   String[]       @db.VarChar
   range        String[]       @db.VarChar
-  page_number  Int            @default(0) @db.SmallInt
+  page_number  Float          @default(0) @db.Real
   marks        Int            @default(0) @db.SmallInt
   forms        forms          @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_form_questions_forms")
   form_answers form_answers[]

@@ -33,10 +33,11 @@ function FormBuilder({
     setIsQuiz(form.is_quiz);
     if (questions.length === 0) return;
     let groupedQuestions: FormElementInstance[][] = [];
+    questions.sort((a, b) => a.page_number - b.page_number);
 
     for (let i = 0; i < questions.length; i++) {
       let question = questions[i];
-      let page = question.page_number;
+      let page = ~~question.page_number;
 
       if (!groupedQuestions[page]) {
         groupedQuestions[page] = [];

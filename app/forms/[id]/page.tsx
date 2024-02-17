@@ -4,6 +4,7 @@ async function page({ params }: { params: { id: string } }) {
   const { id } = params;
   const data = await getFormForSubmission(Number(params.id));
 
-  return data;
+  console.log(data);
+  return <div>Form</div>;
 }
 export default page;

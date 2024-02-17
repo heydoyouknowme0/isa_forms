@@ -1,4 +1,5 @@
 "use server";
+import FormEditNotAllowed from "@/components/forms/FormEditNotAllowed";
 import FormExpired from "@/components/forms/FormExpired";
 import FormNotFound from "@/components/forms/FormNotFound";
 import FormSingleResponse from "@/components/forms/FormSingleResponse";
@@ -108,13 +109,15 @@ export async function UpdateFormQuestions(
 ) {
   const user = await currentUser();
   if (!user) throw new UserNotFoundErr();
-  const upsertOperations = questions.map(async (question) => {
-    const { id, Id, ...rest } = question;
+  const upsertOperations = questions.map(async (question, index) => {
+    const { id, Id, page_number, ...rest } = question;
+    const page_number_with_index = page_number + index * 0.001;
     if (!id)
       return prisma.form_questions.create({
         data: {
           ...rest,
           form_id,
+          page_number: page_number_with_index,
         },
       });
     else {
@@ -126,6 +129,7 @@ export async function UpdateFormQuestions(
         create: {
           ...rest,
           form_id: id,
+          page_number: page_number_with_index,
         },
       });
     }
@@ -185,7 +189,7 @@ export async function getFormForSubmission(id: number) {
   const form = await prisma.forms.findUnique({
     where: {
       id,
-      visible_to: {
+      modifiable_by: {
         some: {
           id: user.id,
         },
@@ -209,13 +213,25 @@ export async function getFormForSubmission(id: number) {
     });
     return <FormExpired />;
   }
-  if (!form.is_single_response) {
-    const response = await prisma.form_submissions.findFirst({
-      where: {
-        form_id: id,
-        email: user.institute_email,
-      },
+  const response = await prisma.form_submissions.findFirst({
+    where: {
+      form_id: id,
+      email: user.institute_email,
+    },
+  });
+  if (!form.is_single_response && response) return <FormSingleResponse />;
+  if (!form.is_editing_allowed && response) return <FormEditNotAllowed />;
+  if (form.is_shuffled) {
+    form.form_questions = form.form_questions.sort(() => Math.random() - 0.5);
+    form.form_questions = form.form_questions.map((question) => {
+      question.page_number = question.page_number / 1;
+      return question;
     });
-    if (response) return <FormSingleResponse />;
+  } else {
+    form.form_questions = form.form_questions.sort(
+      (a, b) => a.page_number - b.page_number
+    );
   }
+
+  return { form, response };
 }
