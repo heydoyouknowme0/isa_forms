@@ -13,8 +13,7 @@ import {
   FormElementInstance,
   FormElements,
 } from "../interfaces/FormElements";
-import { NameField } from "../inputs/name";
-import { Input } from "../ui/input";
+
 import {
   Form,
   FormControl,
@@ -26,6 +25,10 @@ import {
 } from "../ui/form";
 import { Button } from "../ui/button";
 import TextField from "../inputs/text";
+import { Separator } from "../ui/separator";
+import { submitForm } from "@/actions/forms.actions";
+import { toast } from "../ui/use-toast";
+
 interface FormSubmitFormProps {
   form: {
     id: number;
@@ -63,68 +66,57 @@ export default function FormSubmitForm({
         }
       : acc;
   }, {});
-  console.log(schemaObject);
+
   const FormDataSchema = z.object(schemaObject);
 
   type Inputs = z.infer<typeof FormDataSchema>;
 
   const delta = currentStep - previousStep;
 
-  const forms = useForm<z.infer<typeof FormDataSchema>>({
+  const forms = useForm<Inputs>({
     resolver: zodResolver(FormDataSchema),
-    reValidateMode: "onBlur",
   });
-
-  const processForm: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
-    forms.reset();
-  };
 
   type FieldName = keyof Inputs;
 
-  const next = async (e) => {
-    e.preventDefault();
+  const next = async () => {
     const fields = questionElements[currentStep].map((question) => question.Id);
-    const output = 0;
-    console.log(fields);
+    const output = await forms.trigger(fields as FieldName[], {
+      shouldFocus: true,
+    });
+    console.log(output);
     if (!output) return;
 
     if (currentStep < questionElements.length - 1) {
-      if (currentStep === questionElements.length - 2) {
-        await forms.handleSubmit(processForm)();
-      }
       setPreviousStep(currentStep);
       setCurrentStep((step) => step + 1);
     }
   };
 
-  const prev = (e) => {
-    e.preventDefault();
+  const prev = () => {
     if (currentStep > 0) {
       setPreviousStep(currentStep);
       setCurrentStep((step) => step - 1);
     }
   };
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>): void {
-    event.preventDefault();
-    const form = event.target as HTMLFormElement;
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-    const fields = questionElements[currentStep].map((question) => question.Id);
-    const partialSchema = FormDataSchema.pick(fields);
-
-    console.log(partialSchema);
-    const output = partialSchema.safeParse(data);
-    console.log(fields);
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const output = await forms.trigger();
     if (!output) return;
-    console.log("submitted", data);
+    const result = await submitForm(form.id, forms.getValues());
+    console.log(result);
+    toast(result);
   }
 
   return (
-    <div>
+    <div className="w-screen max-w-lg m-auto p-2">
+      <h5>Form Title</h5>
+      <h1 className="text-3xl font-semibold text-sky-900">{form.title}</h1>
+      <p className="text-gray-600">{form.description}</p>
+      <Separator />
       <Form {...forms}>
-        <form onSubmit={handleSubmit}>
+        <form className="space-y-8 py-4" onSubmit={handleSubmit}>
           {questionElements[currentStep].map((question) => {
             const Element = FormElements[question.input_type].formComponent;
             return (
@@ -140,16 +132,9 @@ export default function FormSubmitForm({
                   name={question.Id as FieldName}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{question.question}</FormLabel>
                       <FormControl>
-                        <TextField
-                          placeholder="shadcn"
-                          id={question.Id}
-                          {...field}
-                          defaultValue={""}
-                        />
+                        <Element elementInstance={question} {...field} />
                       </FormControl>
-                      <FormDescription>{question.description}</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -157,49 +142,20 @@ export default function FormSubmitForm({
               </motion.div>
             );
           })}
-          <div className="mt-8 pt-5">
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={prev}
-                disabled={currentStep === 0}
-                className="rounded bg-white px-2 py-1 text-sm font-semibold text-sky-900 shadow-sm ring-1 ring-inset ring-sky-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="h-6 w-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15.75 19.5L8.25 12l7.5-7.5"
-                  />
-                </svg>
-              </button>
-              <button
-                type="submit"
-                disabled={currentStep === questionElements.length - 1}
-                className="rounded bg-white px-2 py-1 text-sm font-semibold text-sky-900 shadow-sm ring-1 ring-inset ring-sky-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="h-6 w-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                  />
-                </svg>
-              </button>
+          {/*TODO background of absolute*/}
+          <div className="pb-4 absolute bottom-0 w-full max-w-lg pr-4 ">
+            <Separator />
+            <div className="pt-4 flex justify-between">
+              <Button onClick={prev} type="button" disabled={currentStep === 0}>
+                Previous
+              </Button>
+              {currentStep === questionElements.length - 1 ? (
+                <Button type="submit">Submit</Button>
+              ) : (
+                <Button type="button" onClick={next}>
+                  Next
+                </Button>
+              )}
             </div>
           </div>
         </form>

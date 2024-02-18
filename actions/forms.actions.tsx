@@ -246,3 +246,67 @@ export async function getFormForSubmission(id: number) {
     />
   );
 }
+export async function submitForm(id: number, formData: Record<string, any>) {
+  const user = await currentUser();
+  if (!user) throw new UserNotFoundErr();
+  const form = await prisma.forms.findUnique({
+    where: {
+      id,
+      modifiable_by: {
+        some: {
+          id: user.id,
+        },
+      },
+    },
+  });
+  if (!form || !form.is_published)
+    return { title: "Error", description: "Form not found" };
+  if (!form.is_active)
+    return { title: "Error", description: "Form is expired" };
+  if (form.expiry_date && form.expiry_date < new Date()) {
+    await prisma.forms.update({
+      where: {
+        id,
+      },
+      data: {
+        is_active: false,
+      },
+    });
+    return { title: "Error", description: "Form is expired" };
+  }
+  if (form.is_single_response) {
+    const response = await prisma.form_submissions.findFirst({
+      where: {
+        form_id: id,
+        email: user.institute_email,
+      },
+    });
+
+    if (response) {
+      if (!form.is_editing_allowed)
+        return { title: "Error", description: "Form is single response" };
+      else {
+        await prisma.form_submissions.delete({
+          where: {
+            id: response.id,
+          },
+        });
+        return { title: "Success", description: form.on_submit_message };
+      }
+    }
+  }
+  const submission = await prisma.form_submissions.create({
+    data: {
+      form_id: id,
+      email: user.institute_email,
+    },
+  });
+  await prisma.form_answers.createMany({
+    data: Object.entries(formData).map(([questionId, answer]) => ({
+      submission_id: submission.id,
+      question_id: Number(questionId),
+      answer,
+    })),
+  });
+  return { title: "Success", description: form.on_submit_message };
+}

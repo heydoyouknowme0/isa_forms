@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import TextField from "@/components/inputs/text";
 
 const input_type: ElementsType = "TextField";
 
@@ -52,7 +53,7 @@ export const TextFieldFormElement: FormElement = {
     elementInstance: FormElementInstance;
   }) => (
     <>
-      <NameField
+      <TextField
         className="w-full"
         {...props}
         name={elementInstance.id?.toString()}
@@ -86,9 +87,9 @@ export const TextFieldFormElement: FormElement = {
 
 function schemaObject(required: boolean) {
   if (required) {
-    return z.string().min(1, { message: "Field is required" }).default("");
+    return z.string().min(1, { message: "Field is required" });
   } else {
-    return z.string().optional().default("");
+    return z.string().optional();
   }
 }
 
