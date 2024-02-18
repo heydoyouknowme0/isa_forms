@@ -1,7 +1,8 @@
 import { TextFieldFormElement } from "@/components/forms/fields/TextFieldFormElement";
 import React, { ElementType } from "react";
+import { ZodOptional, ZodString } from "zod";
 
-export type ElementsType = "TextField";
+export type ElementsType = "TextField" | "lmao";
 
 export type FormElement = {
   input_type: ElementsType;
@@ -10,13 +11,15 @@ export type FormElement = {
     label: string;
   };
   uiFieldComponent: React.FC<{ elementInstance: FormElementInstance }>;
-  formComponent: React.FC;
+  formComponent: React.FC<{ elementInstance: FormElementInstance }>;
   propertiesComponent: React.FC<{ elementInstance: FormElementInstance }>;
   construct: (
     Id: string,
     page_number: number,
     id?: number
   ) => FormElementInstance;
+  schemaObject: (required: boolean) => ZodString | ZodOptional<ZodString>;
+  shouldValidate: boolean;
 };
 
 export type FormElementInstance = {
@@ -39,4 +42,5 @@ type FormElementsType = {
 
 export const FormElements: FormElementsType = {
   TextField: TextFieldFormElement,
+  lmao: TextFieldFormElement,
 };

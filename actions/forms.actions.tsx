@@ -3,9 +3,11 @@ import FormEditNotAllowed from "@/components/forms/FormEditNotAllowed";
 import FormExpired from "@/components/forms/FormExpired";
 import FormNotFound from "@/components/forms/FormNotFound";
 import FormSingleResponse from "@/components/forms/FormSingleResponse";
+import FormSubmitForm from "@/components/forms/FormSubmitForm";
 import prisma from "@/lib/prisma";
 import { formSchema, formSchemaType } from "@/schemas/form";
 import { form_questions, forms } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 //TODO
 async function currentUser() {
@@ -62,7 +64,7 @@ export async function CreateForm(values: formSchemaType) {
         },
       },
     });
-
+    revalidatePath("/forms");
     return form.id;
   } catch (e) {
     throw new Error("something went wrong");
@@ -199,7 +201,6 @@ export async function getFormForSubmission(id: number) {
       form_questions: true,
     },
   });
-  console.log(form);
   if (!form || !form.is_published) return <FormNotFound />;
   if (!form.is_active) return <FormExpired />;
   if (form.expiry_date && form.expiry_date < new Date()) {
@@ -233,5 +234,15 @@ export async function getFormForSubmission(id: number) {
     );
   }
 
-  return { form, response };
+  return (
+    <FormSubmitForm
+      form={{
+        id: form.id,
+        title: form.title,
+        description: form.description || undefined,
+        on_submit_message: form.on_submit_message,
+      }}
+      questions={form.form_questions}
+    />
+  );
 }

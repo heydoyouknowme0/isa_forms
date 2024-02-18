@@ -82,7 +82,7 @@ function DroppedElement({ element }: { element: FormElementInstance }) {
       isDragDropElement: true,
     },
   });
-
+  console.log("element", element);
   const Element = FormElements[element.input_type].uiFieldComponent;
 
   return (

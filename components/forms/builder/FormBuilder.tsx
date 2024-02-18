@@ -66,12 +66,12 @@ function FormBuilder({
   return (
     <DndContext id={"unique-dnd-id"} sensors={sensors}>
       <main className="flex flex-col h-[100vh] w-full ">
-        <div className="flex justify-between border-b-2 p-4 gap-3 items-center">
+        <div className="flex justify-between border-b-2 p-4 gap-3 items-center flex-col md:flex-row">
           <h2 className="truncate font-medium">
             <span className="text-muted-foreground mr-2">Form:</span>
             {form.title}
           </h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap ">
             <div>
               <Switch
                 id={"switch"}

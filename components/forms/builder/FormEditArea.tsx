@@ -93,17 +93,17 @@ export default function FormEditArea() {
         {Array.from({ length: pages }, (_, index) => (
           <FormPageDropable key={index} page={index} />
         ))}
-        <div className="max-w-[920px] rounded-xl flex justify-between items-center m-auto mt-4">
+        <div className="max-w-[920px] rounded-xl flex flex-col md:flex-row justify-between items-center m-auto mt-4">
           <Button
             variant="outline"
-            className="w-[50%]"
+            className="w-full"
             onClick={() => addPage()}
           >
             Add Page
           </Button>
           <Button
             variant="outline"
-            className="w-[50%]"
+            className="w-full"
             onClick={() => removePage()}
             disabled={pages === 1}
           >

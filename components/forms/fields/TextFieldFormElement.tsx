@@ -45,7 +45,25 @@ export const TextFieldFormElement: FormElement = {
       </p>
     </>
   ),
-  formComponent: () => <NameField />,
+  formComponent: ({
+    elementInstance,
+    ...props
+  }: {
+    elementInstance: FormElementInstance;
+  }) => (
+    <>
+      <NameField
+        className="w-full"
+        {...props}
+        name={elementInstance.id?.toString()}
+        label={elementInstance.question}
+        required={elementInstance.is_required}
+      />
+      <p className="text-muted-foreground text-sm w-full">
+        {elementInstance.description}
+      </p>
+    </>
+  ),
   propertiesComponent: PropertiesComponent,
   construct: (Id: string, page_number: number, id?: number) => {
     return {
@@ -62,13 +80,24 @@ export const TextFieldFormElement: FormElement = {
     icon: MdTextFields,
     label: "Text Field",
   },
+  schemaObject: schemaObject,
+  shouldValidate: true,
 };
+
+function schemaObject(required: boolean) {
+  if (required) {
+    return z.string().min(1, { message: "Field is required" }).default("");
+  } else {
+    return z.string().optional().default("");
+  }
+}
+
 const propertiesSchema = z.object({
   label: z.string().min(2).max(50),
   description: z.string().max(200).optional(),
   required: z.boolean().default(false),
   placeHolder: z.string().max(50),
-  marks: z.number().nonnegative().default(0),
+  marks: z.coerce.number().nonnegative().default(0),
 });
 type propertiesFormSchemaType = z.infer<typeof propertiesSchema>;
 
