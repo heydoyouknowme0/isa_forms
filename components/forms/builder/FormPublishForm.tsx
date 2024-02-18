@@ -28,12 +28,10 @@ import { CalendarIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { FaSpinner } from "react-icons/fa";
-import { AlertDialogAction } from "@radix-ui/react-alert-dialog";
 import {
   AlertDialogCancel,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
-import { useFormStatus } from "react-dom";
 import { forms } from "@prisma/client";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
@@ -67,12 +65,11 @@ export default function FormPublishForm({ sForm }: { sForm: forms }) {
       }
 
       const newElements = elements.flat();
-      const elementsNoId = newElements.map(({ Id, ...rest }) => rest);
 
       await PublishForm(
         { ...validatedFields.data, is_quiz },
         sForm.id,
-        elementsNoId
+        newElements
       );
       toast({
         title: "Success",

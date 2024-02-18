@@ -4,6 +4,7 @@ import FormExpired from "@/components/forms/FormExpired";
 import FormNotFound from "@/components/forms/FormNotFound";
 import FormSingleResponse from "@/components/forms/FormSingleResponse";
 import FormSubmitForm from "@/components/forms/FormSubmitForm";
+import { ElementsType } from "@/components/interfaces/FormElements";
 import prisma from "@/lib/prisma";
 import { formSchema, formSchemaType } from "@/schemas/form";
 import { form_questions, forms } from "@prisma/client";
@@ -101,8 +102,18 @@ export async function getFormById(id: number) {
     },
   });
 }
-type new_form_questions = Omit<form_questions, "form_id"> & {
+type new_form_questions = {
   Id: string;
+  id?: number;
+  question: string;
+  description?: string | undefined;
+  is_required: boolean;
+  input_type: ElementsType;
+  choices?: string[] | undefined;
+  mime_types?: string[] | undefined;
+  range?: string[] | undefined;
+  page_number: number;
+  marks: number;
 };
 
 export async function UpdateFormQuestions(
@@ -112,7 +123,7 @@ export async function UpdateFormQuestions(
   const user = await currentUser();
   if (!user) throw new UserNotFoundErr();
   const upsertOperations = questions.map(async (question, index) => {
-    const { id, Id, page_number, ...rest } = question;
+    const { Id, id, page_number, ...rest } = question;
     const page_number_with_index = page_number + index * 0.001;
     if (!id)
       return prisma.form_questions.create({
@@ -148,7 +159,10 @@ type formSum = Omit<
   | "is_active"
   | "persistent_url"
   | "old_persistent_urls"
->;
+  | "description"
+  | "expiry_date"
+> & { description?: string; expiry_date?: Date };
+
 export async function PublishForm(
   form: formSum,
   id: number,
@@ -233,7 +247,7 @@ export async function getFormForSubmission(id: number) {
       (a, b) => a.page_number - b.page_number
     );
   }
-
+  // TODO editable form
   return (
     <FormSubmitForm
       form={{

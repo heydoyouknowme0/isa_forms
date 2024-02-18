@@ -28,6 +28,7 @@ import TextField from "../inputs/text";
 import { Separator } from "../ui/separator";
 import { submitForm } from "@/actions/forms.actions";
 import { toast } from "../ui/use-toast";
+import { useRouter } from "next/navigation";
 
 interface FormSubmitFormProps {
   form: {
@@ -42,6 +43,7 @@ export default function FormSubmitForm({
   form,
   questions,
 }: FormSubmitFormProps) {
+  const Router = useRouter();
   const [previousStep, setPreviousStep] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   let questionElements: FormElementInstance[][] = [];
@@ -99,15 +101,13 @@ export default function FormSubmitForm({
       setCurrentStep((step) => step - 1);
     }
   };
-
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const onSubmit = async () => {
     const output = await forms.trigger();
     if (!output) return;
     const result = await submitForm(form.id, forms.getValues());
-    console.log(result);
     toast(result);
-  }
+    Router.push("/forms");
+  };
 
   return (
     <div className="w-screen max-w-lg m-auto p-2">
@@ -116,7 +116,10 @@ export default function FormSubmitForm({
       <p className="text-gray-600">{form.description}</p>
       <Separator />
       <Form {...forms}>
-        <form className="space-y-8 py-4" onSubmit={handleSubmit}>
+        <form
+          className="space-y-8 py-4"
+          onSubmit={forms.handleSubmit(onSubmit)}
+        >
           {questionElements[currentStep].map((question) => {
             const Element = FormElements[question.input_type].formComponent;
             return (
@@ -150,7 +153,9 @@ export default function FormSubmitForm({
                 Previous
               </Button>
               {currentStep === questionElements.length - 1 ? (
-                <Button type="submit">Submit</Button>
+                <Button disabled={forms.formState.isSubmitting} type="submit">
+                  Submit
+                </Button>
               ) : (
                 <Button type="button" onClick={next}>
                   Next

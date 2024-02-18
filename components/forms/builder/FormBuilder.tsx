@@ -19,7 +19,10 @@ import useDragDrop from "../hooks/useDragDrop";
 import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
 import { idGenerator } from "@/lib/idGenerator";
-import { FormElementInstance } from "@/components/interfaces/FormElements";
+import {
+  ElementsType,
+  FormElementInstance,
+} from "@/components/interfaces/FormElements";
 
 function FormBuilder({
   form,
@@ -43,8 +46,13 @@ function FormBuilder({
         groupedQuestions[page] = [];
       }
 
-      const questionWithId = { ...question, Id: idGenerator() };
-      //TODO: fix types
+      const questionWithId = {
+        ...question,
+        Id: idGenerator(),
+        description: question.description || undefined,
+        input_type: question.input_type as ElementsType,
+        page_number: page,
+      };
       groupedQuestions[page].push(questionWithId);
     }
     setPages(groupedQuestions.length);
